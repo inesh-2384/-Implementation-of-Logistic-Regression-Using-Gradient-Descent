@@ -14,13 +14,12 @@ To write a program to implement the the Logistic Regression Using Gradient Desce
 4. Repeat until convergence, then use final weights to classify and evaluate accuracy.
 
 ## Program:
-```
-/*
+
 Program to implement the the Logistic Regression Using Gradient Descent.
 Developed by: Inesh N
 RegisterNumber:  2122232220036
-*/
-```py
+
+```
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -131,8 +130,11 @@ plt.show()
 ```
 
 ## Output:
+<img width="865" height="78" alt="image" src="https://github.com/user-attachments/assets/8c98bbef-ce5c-4a93-bbf4-0260b7a06857" />
 
+<img width="688" height="502" alt="image" src="https://github.com/user-attachments/assets/9bb062f8-5f4a-4511-92d4-bfb557a1fa39" />
 
+<img width="679" height="495" alt="image" src="https://github.com/user-attachments/assets/f6a1cd61-8e6d-45df-afff-3fa2362dec50" />
 
 ## Result:
 Thus the program to implement the the Logistic Regression Using Gradient Descent is written and verified using python programming.
