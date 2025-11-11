@@ -8,137 +8,113 @@ To write a program to implement the the Logistic Regression Using Gradient Desce
 2. Anaconda – Python 3.7 Installation / Jupyter notebook
 
 ## Algorithm
-1. Initialize weights, learning rate, and iterations.
-2. Compute predictions using the sigmoid function on weighted inputs.
-3. Update weights by applying gradient descent to minimize the cost function.
-4. Repeat until convergence, then use final weights to classify and evaluate accuracy.
+STEP 1: START
 
+STEP 2: Import the data file and import numpy, matplotlib and scipy.
+
+STEP 3: Visulaize the data and define the sigmoid function, cost function and gradient descent.
+
+STEP 4: Plot the decision boundary .
+
+STEP 5: Calculate the y-prediction.
+
+STEP 6: STOP
 ## Program:
-
 ```
 /*
 Program to implement the the Logistic Regression Using Gradient Descent.
-Developed by:  Inesh N
-RegisterNumber:   2122232220036 
-*/
-```
-```py
-import numpy as np
+Developed by: INESH N 
+RegisterNumber: 212223220036
+
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+dataset=pd.read_csv("Placement_Data.csv")
+dataset
 
-# Load dataset
-data = pd.read_csv("Placement_Data.csv")
+dataset=dataset.drop('sl_no',axis=1)
+dataset=dataset.drop('salary',axis=1)
 
-# Encode target
-data['status'] = data['status'].map({'Placed': 1, 'Not Placed': 0})
+dataset["gender"]=dataset["gender"].astype('category')
+dataset["ssc_b"]=dataset["ssc_b"].astype('category')
+dataset["hsc_b"]=dataset["hsc_b"].astype('category')
+dataset["degree_t"]=dataset["degree_t"].astype('category')
+dataset["workex"]=dataset["workex"].astype('category')
+dataset["specialisation"]=dataset["specialisation"].astype('category')
+dataset["status"]=dataset["status"].astype('category')
+dataset["hsc_s"]=dataset["hsc_s"].astype('category')
+dataset.dtypes
 
-# Select numerical features
-X = data[['ssc_p', 'hsc_p', 'degree_p', 'etest_p', 'mba_p']].values
-y = data['status'].values
+dataset["gender"]=dataset["gender"].cat.codes
+dataset["ssc_b"]=dataset["ssc_b"].cat.codes
+dataset["hsc_b"]=dataset["hsc_b"].cat.codes
+dataset["degree_t"]=dataset["degree_t"].cat.codes
+dataset["workex"]=dataset["workex"].cat.codes
+dataset["specialisation"]=dataset["specialisation"].cat.codes
+dataset["status"]=dataset["status"].cat.codes
+dataset["hsc_s"]=dataset["hsc_s"].cat.codes
+dataset
 
-# Train-test split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+x=dataset.iloc[:, :-1].values
+y=dataset.iloc[: ,-1].values
+y
 
-# Feature scaling
-scaler = StandardScaler()
-X_train = scaler.fit_transform(X_train)
-X_test = scaler.transform(X_test)
-
-# Sigmoid function
+theta=np.random.randn(x.shape[1])
+Y=y
 def sigmoid(z):
-    return 1 / (1 + np.exp(-z))
+    return 1/(1+np.exp(-z))
 
-# Cost function
-def compute_cost(X, y, weights):
-    n = len(y)
-    predictions = sigmoid(np.dot(X, weights))
-    cost = -(1/n) * np.sum(y*np.log(predictions) + (1-y)*np.log(1-predictions))
-    return cost
+def loss(theta,x,Y):
+      h=sigmoid(x.dot(theta))
+      return -np.sum(y*np.log(h)+(1-y)*np.log(1-h))
+def gradient_descent(theta,x,Y,alpha,num_iterations):
+    m=len(y)
+    for i in range(num_iterations):
+        h=sigmoid(x.dot(theta))
+        gradient=x.T.dot(h-y)/m
+        theta-=alpha * gradient
+    return theta
 
-# Gradient Descent
-def gradient_descent(X, y, lr=0.01, epochs=1000):
-    n_samples, n_features = X.shape
-    weights = np.zeros(n_features)
-    cost_history = []
+theta=gradient_descent(theta,x,Y,alpha=0.01,num_iterations=1000)
 
-    for i in range(epochs):
-        predictions = sigmoid(np.dot(X, weights))
-        gradient = np.dot(X.T, (predictions - y)) / n_samples
-        weights -= lr * gradient
-        cost = compute_cost(X, y, weights)
-        cost_history.append(cost)
-        
-    return weights, cost_history
+def predict(theta,x):
+    h=sigmoid(x.dot(theta))
+    y_pred=np.where(h>=0.5,1,0)
+    return y_pred
+y_pred=predict(theta,x)
 
-# Add bias term
-X_train_bias = np.c_[np.ones((X_train.shape[0], 1)), X_train]
-X_test_bias = np.c_[np.ones((X_test.shape[0], 1)), X_test]
+accuracy=np.mean(y_pred.flatten()==Y)
+print("Accuracy:",accuracy)
 
-# Train model
-weights, cost_history = gradient_descent(X_train_bias, y_train, lr=0.1, epochs=10000)
+print(y_pred)
+print(y)
 
-print("Final Weights:", weights)
-print("Final Cost:", cost_history[-1])
+xnew=np.array([[0,87,0,95,0,2,78,2,0,0,1,0]])
+y_prednew=predict(theta,xnew)
+print(y_prednew)
 
-# Prediction
-y_pred = sigmoid(np.dot(X_test_bias, weights))
-y_pred_class = [1 if prob >= 0.5 else 0 for prob in y_pred]
+xnew=np.array([[0,0,0,0,0,2,8,2,0,0,1,0]])
+y_prednew=predict(theta,xnew)
+print(y_prednew)
 
-# Accuracy
-accuracy = np.mean(y_pred_class == y_test)
-print("Accuracy:", accuracy)
-
-# ---------------------------------------------------------
-# Plot 1: Cost vs Iterations
-plt.figure(figsize=(6,4))
-plt.plot(range(len(cost_history)), cost_history, 'b-')
-plt.xlabel("Iterations")
-plt.ylabel("Cost")
-plt.title("Cost vs Iterations")
-plt.show()
-
-# ---------------------------------------------------------
-# Plot 2: Decision Boundary (using 2 features only for visualization)
-X_vis = data[['ssc_p', 'hsc_p']].values
-y_vis = data['status'].values
-
-# Normalize for plotting
-scaler_vis = StandardScaler()
-X_vis = scaler_vis.fit_transform(X_vis)
-
-# Add bias
-X_vis_bias = np.c_[np.ones((X_vis.shape[0], 1)), X_vis]
-
-# Train only on 2 features for visualization
-weights_vis, _ = gradient_descent(X_vis_bias, y_vis, lr=0.1, epochs=5000)
-
-# Plot points
-plt.figure(figsize=(6,4))
-plt.scatter(X_vis[y_vis==0,0], X_vis[y_vis==0,1], color='red', label='Not Placed')
-plt.scatter(X_vis[y_vis==1,0], X_vis[y_vis==1,1], color='blue', label='Placed')
-
-# Decision boundary line
-x_values = np.array([min(X_vis[:,0])-1, max(X_vis[:,0])+1])
-y_values = -(weights_vis[0] + weights_vis[1]*x_values) / weights_vis[2]
-plt.plot(x_values, y_values, label="Decision Boundary")
-
-plt.xlabel("SSC % (scaled)")
-plt.ylabel("HSC % (scaled)")
-plt.legend()
-plt.title("Decision Boundary for Logistic Regression")
-plt.show()
 ```
-
 ## Output:
-<img width="865" height="78" alt="image" src="https://github.com/user-attachments/assets/8c98bbef-ce5c-4a93-bbf4-0260b7a06857" />
 
-<img width="688" height="502" alt="image" src="https://github.com/user-attachments/assets/9bb062f8-5f4a-4511-92d4-bfb557a1fa39" />
+![image](https://github.com/Jaiganesh235/-Implementation-of-Logistic-Regression-Using-Gradient-Descent/assets/118657189/1b517e96-f207-4f2b-8edc-001dbfc8857c)
 
-<img width="679" height="495" alt="image" src="https://github.com/user-attachments/assets/f6a1cd61-8e6d-45df-afff-3fa2362dec50" />
+![image](https://github.com/Jaiganesh235/-Implementation-of-Logistic-Regression-Using-Gradient-Descent/assets/118657189/4c0cc6a1-a37b-4074-9e3f-f340fddd8bee)
+
+![image](https://github.com/Jaiganesh235/-Implementation-of-Logistic-Regression-Using-Gradient-Descent/assets/118657189/dc5a7fcb-ba8e-4add-9f04-e65805f22310)
+
+![image](https://github.com/Jaiganesh235/-Implementation-of-Logistic-Regression-Using-Gradient-Descent/assets/118657189/7fa94896-6709-4b35-b582-d36fe86675fe)
+
+![image](https://github.com/Jaiganesh235/-Implementation-of-Logistic-Regression-Using-Gradient-Descent/assets/118657189/aa1fa0db-0cb4-4abb-9b17-fb0cbf8cd850)
+
+![image](https://github.com/Jaiganesh235/-Implementation-of-Logistic-Regression-Using-Gradient-Descent/assets/118657189/a50a483b-5ff7-4bb6-8c15-7c6086f9f382)
+
+![image](https://github.com/Jaiganesh235/-Implementation-of-Logistic-Regression-Using-Gradient-Descent/assets/118657189/3a8e10cb-9a59-40a6-a52e-8005044a0223)
+
+
 
 ## Result:
 Thus the program to implement the the Logistic Regression Using Gradient Descent is written and verified using python programming.
-
